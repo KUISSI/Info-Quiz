@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Informatique</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+      }
+      .invisible {
+        display: none;
+      }
+      #ecranAccueil,
+      #conteneurQuiz,
+      #ecranResultat {
+        margin-top: 30px;
+        padding: 20px;
+      }
+      #question {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+      #reponses {
+        list-style-type: none;
+        padding: 0;
+      }
+      #reponses li {
+        margin: 10px 0;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #compteur {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      #scoreEnCours {
+        margin-top: 10px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Écran d'accueil -->
+    <div id="ecranAccueil">
+      <h1>Quiz Informatique</h1>
+      <label for="difficulte">Choisissez la difficulté :</label>
+      <select id="difficulte">
+        <option value="easy">Facile</option>
+        <option value="medium">Moyen</option>
+        <option value="hard">Difficile</option>
+      </select>
+      <br /><br />
+      <button id="boutonDemarrer">Commencer</button>
+      <button onclick="window.open('Info Quiz/README.md')">Read Me</button>
+    </div>
+
+    <!-- Zone du quiz -->
+    <div id="conteneurQuiz" class="invisible">
+      <div id="compteur"></div>
+      <div id="scoreEnCours"></div>
+      <p id="question"></p>
+      <ul id="reponses"></ul>
+      <button id="suivant" class="invisible">Question Suivante</button>
+      <br />
+      <button id="quitter">Quitter</button>
+      <button onclick="window.open('Info Quiz/README.md')">Read Me</button>
+    </div>
+
+    <!-- Résultat final -->
+    <div id="ecranResultat" class="invisible">
+      <h2>Résultat</h2>
+      <p id="scoreFinal"></p>
+      <button id="rejouer">Rejouer</button>
+    </div>
+
+    <!-- Musique de fond -->
+    <audio id="musiqueFond" loop>
+      <source
+        src="src/assets/backgroundMmusic-cooperASMR.mp3"
+        type="audio/mp3"
+      />
+    </audio>
+
+    <script>
+      // Classe qui gère tout le quiz
+      class Quiz {
+        constructor() {
+          // Initialisation des propriétés du quiz
+          this.questions = [];
+          this.index = 0;
+          this.score = 0;
+          this.timer = 15;
+          this.intervalle = null;
+
+          // Récupération des éléments HTML
+          this.questionEl = document.getElementById("question");
+          this.reponsesEl = document.getElementById("reponses");
+          this.compteurEl = document.getElementById("compteur");
+          this.scoreEnCoursEl = document.getElementById("scoreEnCours");
+          this.suivantBtn = document.getElementById("suivant");
+
+          // Boutons d'action
+          document.getElementById("boutonDemarrer").onclick = () =>
+            this.demarrer();
+          document.getElementById("suivant").onclick = () => this.suivant();
+          document.getElementById("rejouer").onclick = () => location.reload();
+          document.getElementById("quitter").onclick = () => location.reload();
+
+          // Audio
+          this.audio = document.getElementById("musiqueFond");
+        }
+
+        // Fonction pour lancer le quiz
+        async demarrer() {
+          const diff = document.getElementById("difficulte").value;
+          const res = await fetch(
+            `https://opentdb.com/api.php?amount=10&category=18&difficulty=${diff}&type=multiple&encode=url3986`
+          );
+          const data = await res.json();
+          this.questions = data.results.map((q) => ({
+            question: decodeURIComponent(q.question),
+            bonne: decodeURIComponent(q.correct_answer),
+            reponses: this.melanger([
+              ...q.incorrect_answers.map((r) => decodeURIComponent(r)),
+              decodeURIComponent(q.correct_answer),
+            ]),
+          }));
+
+          document.getElementById("ecranAccueil").classList.add("invisible");
+          document
+            .getElementById("conteneurQuiz")
+            .classList.remove("invisible");
+          this.audio.play();
+          this.afficher();
+        }
+
+        // Afficher question et lancer le compte à rebours
+        afficher() {
+          clearInterval(this.intervalle);
+          this.timer = 15;
+          this.compteurEl.textContent = `Temps restant : ${this.timer}s`;
+
+          this.intervalle = setInterval(() => {
+            this.timer--;
+            this.compteurEl.textContent = `Temps restant : ${this.timer}s`;
+            if (this.timer <= 0) {
+              clearInterval(this.intervalle);
+              this.selectionner(null);
+            }
+          }, 1000);
+
+          this.scoreEnCoursEl.textContent = `Score : ${this.score} / ${this.questions.length}`;
+
+          const q = this.questions[this.index];
+          this.questionEl.textContent = q.question;
+          this.reponsesEl.innerHTML = "";
+
+          q.reponses.forEach((rep) => {
+            const li = document.createElement("li");
+            const btn = document.createElement("button");
+            btn.textContent = rep;
+            btn.onclick = () => this.selectionner(rep);
+            li.appendChild(btn);
+            this.reponsesEl.appendChild(li);
+          });
+        }
+
+        // Choix de réponse ou l'absence de réponse
+        selectionner(choix) {
+          clearInterval(this.intervalle);
+          const q = this.questions[this.index];
+          this.reponsesEl.querySelectorAll("button").forEach((btn) => {
+            btn.disabled = true;
+            if (btn.textContent === q.bonne) {
+              btn.style.backgroundColor = "green";
+            } else if (btn.textContent === choix) {
+              btn.style.backgroundColor = "red";
+            }
+          });
+
+          if (choix === q.bonne) this.score++;
+          this.suivantBtn.classList.remove("invisible");
+          this.scoreEnCoursEl.textContent = `Score : ${this.score} / ${this.questions.length}`;
+        }
+
+        // Question suivante ou fin du quiz
+        // Si l'utilisateur a répondu à la question, on incrémente le score
+        suivant() {
+          this.index++;
+          if (this.index < this.questions.length) {
+            this.suivantBtn.classList.add("invisible");
+            this.afficher();
+          } else {
+            this.terminer();
+          }
+        }
+
+        // Afficher le score final
+        terminer() {
+          document.getElementById("conteneurQuiz").classList.add("invisible");
+          document
+            .getElementById("ecranResultat")
+            .classList.remove("invisible");
+          document.getElementById(
+            "scoreFinal"
+          ).textContent = `Vous avez obtenu ${this.score} / ${this.questions.length}`;
+          this.audio.pause();
+        }
+
+        // Mélanger les réponses
+        melanger(arr) {
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        }
+      }
+
+      // Créer une instance du Quiz
+      new Quiz();
+    </script>
+  </body>
+</html>
