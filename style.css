@@ -1,0 +1,77 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+  }
+  .invisible {
+    display: none;
+  }
+  #ecranAccueil,
+  #conteneurQuiz,
+  #ecranResultat {
+    margin-top: 30px;
+    padding: 20px;
+  }
+  #question {
+    font-size: 1.5em;
+    margin-top: 50px;
+    margin-bottom: 20px;
+  }
+  #reponses {
+    list-style-type: none;
+    padding: 0;
+  }
+  #reponses li {
+    margin: 10px 0;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 1.5em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    margin: 5px;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  #compteur {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  #scoreEnCours {
+    font-size: 1.5em;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  #enonceRegles {
+    margin-top: 100px;
+    font-size: 1.5em;
+    text-align: center;
+  }
+    
+  #difficulte, label  {
+     margin-top: 30px;
+     font-size: 1.5em;
+     text-align: center;
+    }
+
+  h1, h2 {
+    font-size: 3em;
+}
+
+#scoreFinal {
+    font-size: 2em;
+    margin-top: 20px;
+  }
+
+#suivant{
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }

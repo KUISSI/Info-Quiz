@@ -31,16 +31,11 @@ Info Quiz/
 
 ## Fonctionnement du jeu
 
-1. Télécharger ou clone le projet :
-
-   ```bash
-   git clone https://github.com/ton-utilisateur/info-quiz.git
-   cd info-quiz
-   ```
+1. Cloner le projet :
+   git clone https://github.com/KUISSI/Info-Quiz.git
 
 2. Ouvrir le fichier `index.html` dans ton navigateur :
-
-Aucune installation n’est requise.
+   Aucune installation n’est requise.
 
 ---
 
@@ -88,4 +83,5 @@ Projet développé dans le cadre d’une formation développeur.
 Pour toute question : `guy.kuissi@gmail.com`
 
 ---
+
 # Info-Quiz
